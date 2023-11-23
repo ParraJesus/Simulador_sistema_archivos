@@ -13,7 +13,7 @@ namespace FileSystem_Simulator.Controllador
 
         public UserController() 
         {
-            rootDirectory = new Directory("root", null);
+            rootDirectory = new Directory("HOME", null, null);
         }
 
         public void regUser(string userName, string userPass)
@@ -21,7 +21,7 @@ namespace FileSystem_Simulator.Controllador
             User newUser = new User(userName, userPass);
             users.Add(newUser);
 
-            Directory userDirectory = new Directory(userName, rootDirectory);
+            Directory userDirectory = new Directory(userName, rootDirectory, newUser);
             rootDirectory.AddElement(userDirectory);
             newUser.HomeDirectory = userDirectory;
         }

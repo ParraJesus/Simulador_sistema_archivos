@@ -10,16 +10,19 @@ namespace FileSystem_Simulator.Modelo
     public class Directory : IFileSystemElement
     {
         private string name;
+        private User creator;
 
         public List<IFileSystemElement> elements = new List<IFileSystemElement>();
 
+        public int[] Permissions { get; set; } = {7,5,5};
 
         public Directory parentDirectory { get; set; }
 
-        public Directory(string name, Directory parentDirectory) 
+        public Directory(string name, Directory parentDirectory, User userCreator) 
         {
             this.name = name;
             this.parentDirectory = parentDirectory;
+            this.creator = userCreator;
         }
 
         public void AddElement(IFileSystemElement element)
@@ -136,5 +139,11 @@ namespace FileSystem_Simulator.Modelo
         {
             this.name = name;
         }
+
+        public User Creator
+        {
+            get { return creator; }
+        }
+
     }
 }

@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controlador\PermissionController.cs" />
     <Compile Include="Controlador\TerminalController.cs" />
     <Compile Include="Controlador\UserController.cs" />
     <Compile Include="Controlador\CommandController.cs" />

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using static FileSystem_Simulator.Controlador.PermissionController;
 
 namespace FileSystem_Simulator.Controllador
 {
@@ -16,6 +17,7 @@ namespace FileSystem_Simulator.Controllador
         private Terminal terminal;
         private TerminalController terminalController;
         private Directory currentDirectory;
+        private PermissionController permissionController = new PermissionController();
 
         public CommandController(User user, UserController userController, Terminal terminal)
         {
@@ -64,8 +66,7 @@ namespace FileSystem_Simulator.Controllador
                     return executeRm(commandParts);
 
                 case "chmod":
-                    // permisos
-                    return "";
+                    return executeChmod(commandParts);
 
                 case "format":
                     return executeFormat(commandParts);
@@ -78,12 +79,53 @@ namespace FileSystem_Simulator.Controllador
 
                 case "su":
                     return executeSu(commandParts);
-
+                case "help":
+                    return executeHelp();
                 default:
                     return "Invalid command";
             }
 
         }
+
+        private string executeChmod(string[] command)
+        {
+            if (command.Length != 3)
+            {
+                return "Invalid 'chmod' command. Usage: chmod <permissions> <element_name>";
+            }
+
+            string permissionsStr = command[1];
+            string elementName = command[2];
+
+            if (permissionsStr.Length == 3 && int.TryParse(permissionsStr, out int permissions))
+            {
+                // Divide el número de permisos en tres dígitos individuales.
+                int ownerPermission = permissions / 100;
+                int groupPermission = (permissions / 10) % 10;
+                int otherPermission = permissions % 10;
+
+                // Luego, crea un array de enteros con estos valores.
+                int[] permissionArray = { ownerPermission, groupPermission, otherPermission };
+
+                IFileSystemElement targetElement = findElementByName(elementName, currentDirectory);
+
+                if (targetElement != null)
+                {
+                    permissionController.ChangePermissions(targetElement, user, permissionArray);
+                    return $"Permissions changed for {elementName}.";
+                }
+                else
+                {
+                    return $"Error: '{elementName}' not found in the current directory.";
+                }
+            }
+            else
+            {
+                return "Invalid permissions value. Permissions must be a three-digit integer in the range 0-7.";
+            }
+        }
+
+
 
         private string executeEcho(string[] parts)
         {
@@ -175,12 +217,19 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeMkdir(string[] parts)
         {
+            if (!permissionController.HasWritePermission(currentDirectory, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions.";
+            }
+
             if (parts.Length != 2)
             {
                 return "Invalid 'mkdir' command. Usage: mkdir <directory_name>";
             }
 
             string directoryName = parts[1];
+
+            Directory newDirectory = new Directory(directoryName, currentDirectory, user);
 
             foreach (var element in currentDirectory.elements)
             {
@@ -190,7 +239,7 @@ namespace FileSystem_Simulator.Controllador
                 }
             }
 
-            Directory newDirectory = new Directory(directoryName, currentDirectory);
+            newDirectory.Permissions = new int[] { 7, 5, 5 };
             currentDirectory.AddElement(newDirectory);
 
             return $"Directory '{directoryName}' created successfully.";
@@ -268,6 +317,11 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeCat(string[] parts)
         {
+            if (!permissionController.HasWritePermission(currentDirectory, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions.";
+            }
+
             if (parts.Length != 2)
             {
                 return "Invalid 'cat' command. Usage: cat <filename.txt>";
@@ -277,15 +331,16 @@ namespace FileSystem_Simulator.Controllador
 
             File targetFile = currentDirectory.findFileByName(fileName);
 
-            if (targetFile != null)
+            if (targetFile != null && permissionController.HasReadPermission(currentDirectory, user))
             {
+                Debug.WriteLine(string.Join(" ", targetFile.Permissions));
                 return targetFile.Text;
             }
             else
             {
                 if (fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 {
-                    File newFile = new File(fileName);
+                    File newFile = new File(fileName, user);
                     currentDirectory.AddElement(newFile);
                     return $"File '{fileName}' created.";
                 }
@@ -298,6 +353,11 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeMv(string[] parts)
         {
+            if (!permissionController.HasWritePermission(currentDirectory, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions.";
+            }
+
             if (parts.Length != 3)
             {
                 return "Invalid 'mv' command. Usage: mv <old_name> <new_name>";
@@ -345,6 +405,11 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeRm(string[] parts)
         {
+            if (!permissionController.HasWritePermission(currentDirectory, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions.";
+            }
+
             if (parts.Length != 2)
             {
                 return "Invalid 'rm' command. Usage: rm <element_name>";
@@ -368,6 +433,11 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeFormat(string[] parts)
         {
+            if (!permissionController.HasWritePermission(currentDirectory, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions.";
+            }
+
             if (parts.Length != 1)
             {
                 return "Invalid 'format' command. Usage: format";
@@ -378,6 +448,27 @@ namespace FileSystem_Simulator.Controllador
             return "File system formatted successfully.";
         }
 
+        private string executeHelp() 
+        {
+            string result;
+
+            result = "  Implemented command list: \n" +
+                     "  echo. Usage: echo <body> \n" +
+                     "  mkdir. Usage: mkdir <directory_name> \n" +
+                     "  pwd. Usage: pwd \n" +
+                     "  ls. Usage: ls \n" +
+                     "  cd. Usage: cd <directory_name> \n" +
+                     "  cat. cat <filename.txt> \n" +
+                     "  mv. Usage: mv <old_name> <new_name> \n" +
+                     "  rm. Usage: rm <element_name> \n" +
+                     "  chmod.  \n" +
+                     "  format.  Usage: format \n" +
+                     "  cls.  Usage: cls \n" +
+                     "  history.  Usage: history \n" +
+                     "  su.  Usage: su <surname> <password> \n";
+
+            return result;
+        }
 
         #region GetterSetters
         public List<string> HistoryList { get => historyList; set => historyList = value; }

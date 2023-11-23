@@ -13,5 +13,9 @@ namespace FileSystem_Simulator.Modelo
         string getName();
 
         void setName(string name);
+
+        User Creator { get; }
+
+        int[] Permissions { get; set; }
     }
 }

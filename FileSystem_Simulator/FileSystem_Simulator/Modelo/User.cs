@@ -20,7 +20,7 @@ namespace FileSystem_Simulator.Modelo
             this.password = password;
             group = name;
 
-            homeDirectory = new Directory(name, null);
+            homeDirectory = new Directory(name, null, this);
         }
 
         #region GetterSetters
