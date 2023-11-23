@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using static FileSystem_Simulator.Controlador.PermissionController;
 
 namespace FileSystem_Simulator.Controllador
 {
@@ -37,7 +36,10 @@ namespace FileSystem_Simulator.Controllador
             string[] commandParts = command.Split(' ');
             string mainCommand = commandParts[0].ToLower();
 
-            historyList.Add(command);
+            DateTime fechaYHoraActual = DateTime.Now;
+            string cadenaFechaYHora = fechaYHoraActual.ToString("yyyy-MM-dd HH:mm:ss");
+
+            historyList.Add($"{command}: executed at {cadenaFechaYHora}");
 
             switch (mainCommand)
             {
@@ -124,8 +126,6 @@ namespace FileSystem_Simulator.Controllador
                 return "Invalid permissions value. Permissions must be a three-digit integer in the range 0-7.";
             }
         }
-
-
 
         private string executeEcho(string[] parts)
         {
@@ -328,7 +328,7 @@ namespace FileSystem_Simulator.Controllador
             }
 
             string fileName = parts[1];
-
+            
             File targetFile = currentDirectory.findFileByName(fileName);
 
             if (targetFile != null && permissionController.HasReadPermission(currentDirectory, user))

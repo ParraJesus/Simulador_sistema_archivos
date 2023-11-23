@@ -70,18 +70,7 @@ namespace FileSystem_Simulator.Controlador
                 
             if (AreValidPermissions(permissions))
             {
-                if (element.Creator.Name.Equals(currentUser.Name))
-                {
                     element.Permissions = permissions;
-                }
-                else if (element.Creator.Group.Equals(currentUser.Group))
-                {
-                    element.Permissions = permissions;
-                }
-                else
-                {
-                    element.Permissions = permissions;
-                }
             }
         }
 
