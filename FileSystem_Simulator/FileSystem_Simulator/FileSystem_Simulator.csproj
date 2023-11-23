@@ -46,20 +46,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllador\SistemaArchivos.cs" />
+    <Compile Include="Controlador\fileSystemController.cs" />
+    <Compile Include="Controlador\TerminalController.cs" />
+    <Compile Include="Controlador\UserController.cs" />
     <Compile Include="Modelo\Archivo.cs" />
-    <Compile Include="Modelo\Command.cs" />
+    <Compile Include="Controlador\CommandController.cs" />
     <Compile Include="Modelo\Directorio.cs" />
     <Compile Include="Modelo\Grupo.cs" />
     <Compile Include="Modelo\Permiso.cs" />
-    <Compile Include="Modelo\Usuario.cs" />
+    <Compile Include="Modelo\User.cs" />
     <Compile Include="Vista\Terminal.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Vista\Terminal.Designer.cs">
       <DependentUpon>Terminal.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controllador\Program.cs" />
+    <Compile Include="Controlador\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Vista\Terminal.resx">
       <DependentUpon>Terminal.cs</DependentUpon>

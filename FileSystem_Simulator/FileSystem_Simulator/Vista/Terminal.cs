@@ -1,27 +1,34 @@
-﻿using FileSystem_Simulator.Modelo;
+﻿using FileSystem_Simulator.Controllador;
+using FileSystem_Simulator.Modelo;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FileSystem_Simulator
 {
     public partial class Terminal : Form
     {
-        Command command = new Command(); 
 
-        private string prompt = "usuario@ubuntu:-$ ";
-        public Terminal()
+        private UserController userController;
+        private User user;
+
+        CommandController command;
+
+        private string prompt;
+        
+
+        public Terminal(UserController userController)
         {
             InitializeComponent();
+
+            user = userController.Users.First();
+            command = new CommandController(user, userController, this);
+
+            prompt = $"{user.Name}@linux:-$ ";
             rtbTerminal.AppendText(prompt);
 
+            this.userController = userController;
         }
 
         private void rtbTerminal_KeyPress(object sender, KeyPressEventArgs e)
@@ -38,16 +45,23 @@ namespace FileSystem_Simulator
 
             if (e.KeyCode == Keys.Enter)
             {
-                execute(promptLength);   
+                execute(promptLength);
+
+                promptLength = rtbTerminal.Text.Length;
 
                 rtbTerminal.AppendText(Environment.NewLine + prompt);
                 e.SuppressKeyPress = true;
-
+                
                 return;
             }
             if (e.KeyCode == Keys.Back)
             {
-                if (rtbTerminal.SelectionStart <= promptLength)
+                int currentPosition = rtbTerminal.SelectionStart;
+
+                int currentLineIndex = rtbTerminal.GetLineFromCharIndex(currentPosition);
+                int currentLineStart = rtbTerminal.GetFirstCharIndexFromLine(currentLineIndex);
+
+                if (currentPosition > currentLineStart && currentPosition <= (currentLineStart + prompt.Length))
                 {
                     e.SuppressKeyPress = true;
                     return;
@@ -81,5 +95,16 @@ namespace FileSystem_Simulator
             rtbTerminal.AppendText("\n" + result);
 
         }
+
+
+
+        #region GettersSetters
+        public string Prompt { get => prompt; set => prompt = value; }
+
+        public RichTextBox GetRichTextBox()
+        {
+            return rtbTerminal;
+        }
+        #endregion
     }
 }
