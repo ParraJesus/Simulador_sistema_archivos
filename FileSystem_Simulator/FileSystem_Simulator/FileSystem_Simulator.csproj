@@ -49,6 +49,9 @@
     <Compile Include="Controlador\TerminalController.cs" />
     <Compile Include="Controlador\UserController.cs" />
     <Compile Include="Controlador\CommandController.cs" />
+    <Compile Include="Modelo\Directory.cs" />
+    <Compile Include="Modelo\File.cs" />
+    <Compile Include="Modelo\IFileSystemElement.cs" />
     <Compile Include="Modelo\User.cs" />
     <Compile Include="Vista\Terminal.cs">
       <SubType>Form</SubType>

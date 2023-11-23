@@ -3,7 +3,7 @@ using FileSystem_Simulator.Modelo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows.Forms;
+using System.Text;
 
 namespace FileSystem_Simulator.Controllador
 {
@@ -15,6 +15,7 @@ namespace FileSystem_Simulator.Controllador
         private UserController userController;
         private Terminal terminal;
         private TerminalController terminalController;
+        private Directory currentDirectory;
 
         public CommandController(User user, UserController userController, Terminal terminal)
         {
@@ -23,6 +24,9 @@ namespace FileSystem_Simulator.Controllador
             this.terminal = terminal;
 
             terminalController = new TerminalController(terminal);
+
+            currentDirectory = user.HomeDirectory;  
+            updatePrompt();
         }
 
         public string executeCommand(string command)
@@ -39,40 +43,32 @@ namespace FileSystem_Simulator.Controllador
                     return executeEcho(commandParts);
 
                 case "mkdir":
-                    //crear directorio
-                    return "";
+                    return executeMkdir(commandParts);
 
                 case "pwd":
-                    //mostrar directorio actual
-                    return "";
+                    return executePwd(commandParts);
 
                 case "ls":
-                    //mostrar contenido del directorio
-                    return "";
+                    return executeLs(commandParts);
 
-                case "cd":
-                    //dirigirse a un directorio o a raíz
-                    return "";
+                case "cd":                   
+                    return executeCd(commandParts);
 
                 case "cat":
-                    //crear o visualizar el contenido de un txt (necesita extensión .txt)
-                    return "";
+                    return executeCat(commandParts);
 
                 case "mv":
-                    //renombrar archivo o directorio
-                    return "";
+                    return executeMv(commandParts);
 
                 case "rm":
-                    //eliminar archivo o directorio
-                    return "";
+                    return executeRm(commandParts);
 
                 case "chmod":
                     // permisos
                     return "";
 
                 case "format":
-                    //formatear todo
-                    return "";
+                    return executeFormat(commandParts);
 
                 case "cls":
                     return executeCls(commandParts);
@@ -137,6 +133,72 @@ namespace FileSystem_Simulator.Controllador
             return string.Join("\n", historyList);
         }
 
+        private string executeCd(string[] parts) 
+        {
+            if (parts.Length == 1) 
+            {
+                currentDirectory = user.HomeDirectory;
+            }
+            if (parts.Length == 2)
+            {
+                string targetDirectoryName = parts[1];
+                Directory targetDirectory = findDirectoryByName(targetDirectoryName, currentDirectory);
+                if (targetDirectory != null)
+                {
+                    currentDirectory = targetDirectory;
+                }
+                else
+                {
+                    return $"Directory '{targetDirectoryName}' not found.";
+                }
+            }
+            if (parts.Length >= 3)
+            {
+                return "Invalid 'cd' command. Usage: cd <directory_name>";
+            }
+
+            updatePrompt();
+
+            return "";
+        }
+
+        private Directory findDirectoryByName(string directoryName, Directory parentDirectory)
+        {
+            foreach (var element in parentDirectory.elements)
+            {
+                if (element is Directory directory && directory.getName().Equals(directoryName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return directory;
+                }
+            }
+
+            return null;
+        }
+
+        private string executeMkdir(string[] parts)
+        {
+            if (parts.Length != 2)
+            {
+                return "Invalid 'mkdir' command. Usage: mkdir <directory_name>";
+            }
+
+            string directoryName = parts[1];
+
+            foreach (var element in currentDirectory.elements)
+            {
+                if (element is IFileSystemElement fileSystemElement && fileSystemElement.getName().Equals(directoryName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return $"Error: Directory '{directoryName}' already exists.";
+                }
+            }
+
+            // Crear el nuevo directorio y asignar la ruta completa
+            Directory newDirectory = new Directory(directoryName, currentDirectory);
+            currentDirectory.AddElement(newDirectory);
+
+            return $"Directory '{directoryName}' created successfully.";
+        }
+
         private string executeSu(string[] parts)
         {
             if (parts.Length != 3)
@@ -158,7 +220,12 @@ namespace FileSystem_Simulator.Controllador
             if (userController.verifyPassword(newUser, enteredPassword))
             {
                 user = newUser;
-                terminal.UserPrompt = $"{user.Name}@linux:-$ ";
+                updatePrompt();
+
+                string[] auxParts = new string[] {"cd"};
+
+                executeCd(auxParts);
+
                 return $"Switched to user {usernameToSwitch}.";
             }
             else
@@ -166,6 +233,182 @@ namespace FileSystem_Simulator.Controllador
                 return "Incorrect password. Authentication failed.";
             }
         }
+
+        private string executeLs(string[] parts)
+        {
+            if (parts.Length != 1)
+            {
+                return "Invalid 'ls' command. Usage: ls";
+            }
+
+            StringBuilder result = new StringBuilder();
+
+            foreach (var element in currentDirectory.elements)
+            {
+                if (element is IFileSystemElement fileSystemElement)
+                {
+                    result.AppendLine(fileSystemElement.getName());
+                }
+            }
+
+            return result.ToString();
+        }
+
+        private void updatePrompt()
+        {
+            terminal.UserPrompt = $"{user.Name}@linux:{currentDirectory.FullName} -$ ";
+        }
+
+        private string executePwd(string[] parts)
+        {
+            if (parts.Length != 1)
+            {
+                return "Invalid 'pwd' command. Usage: pwd";
+            }
+
+            return currentDirectory.FullName;
+        }
+
+        private string executeCat(string[] parts)
+        {
+            if (parts.Length != 2)
+            {
+                return "Invalid 'cat' command. Usage: cat <filename.txt>";
+            }
+
+            string fileName = parts[1];
+
+            // Buscar el archivo por nombre en el directorio actual
+            File targetFile = currentDirectory.findFileByName(fileName);
+
+            if (targetFile != null)
+            {
+                // Mostrar el contenido del archivo
+                return targetFile.Text;
+            }
+            else
+            {
+                // Crear un nuevo archivo si no existe
+                if (fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    File newFile = new File(fileName);
+                    currentDirectory.AddElement(newFile);
+                    return $"File '{fileName}' created.";
+                }
+                else
+                {
+                    return "Error: Invalid file extension. The file name must end with '.txt'.";
+                }
+            }
+        }
+
+        private string executeMv(string[] parts)
+        {
+            if (parts.Length != 3)
+            {
+                return "Invalid 'mv' command. Usage: mv <old_name> <new_name>";
+            }
+
+            string oldName = parts[1];
+            string newName = parts[2];
+
+            // Buscar el elemento por nombre en el directorio actual
+            IFileSystemElement targetElement = findElementByName(oldName, currentDirectory);
+
+            if (targetElement != null)
+            {
+                // Verificar si el nuevo nombre termina en ".txt" para los archivos
+                if (targetElement is File && !newName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "Error: Invalid file extension. The new file name must end with '.txt'.";
+                }
+
+                // Cambiar el nombre del elemento
+                targetElement.setName(newName);
+
+                return $"{targetElement.GetType().Name} '{oldName}' renamed to '{newName}'.";
+            }
+            else
+            {
+                return $"Error: '{oldName}' not found in the current directory.";
+            }
+        }
+
+        private IFileSystemElement findElementByName(string elementName, Directory directory)
+        {
+            return findElementInDirectory(elementName, directory);
+            /*
+            foreach (var element in directory.elements)
+            {
+                if (element.getName().Equals(elementName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return element;
+                }
+                else if (element is Directory subdirectory)
+                {
+                    IFileSystemElement foundElement = FindElementByName(elementName, subdirectory);
+                    if (foundElement != null)
+                    {
+                        return foundElement;
+                    }
+                }
+            }
+
+            return null;  
+            */
+        }
+
+        private IFileSystemElement findElementInDirectory(string elementName, Directory directory)
+        {
+            foreach (var element in directory.elements)
+            {
+                if (element.getName().Equals(elementName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return element;
+                }
+            }
+
+            return null;
+        }
+
+        private string executeRm(string[] parts)
+        {
+            if (parts.Length != 2)
+            {
+                return "Invalid 'rm' command. Usage: rm <element_name>";
+            }
+
+            string elementName = parts[1];
+
+            // Buscar el elemento por nombre en el directorio actual
+            IFileSystemElement targetElement = findElementByName(elementName, currentDirectory);
+
+            if (targetElement != null)
+            {
+                // Eliminar el elemento del directorio actual
+                currentDirectory.RemoveElement(targetElement);
+
+                return $"{targetElement.GetType().Name} '{elementName}' removed.";
+            }
+            else
+            {
+                return $"Error: '{elementName}' not found in the current directory.";
+            }
+        }
+
+        private string executeFormat(string[] parts)
+        {
+            if (parts.Length != 1)
+            {
+                return "Invalid 'format' command. Usage: format";
+            }
+
+            // Eliminar todos los elementos del directorio actual
+            currentDirectory.clearElements();
+
+            return "File system formatted successfully.";
+        }
+
 
         #region GetterSetters
         public List<string> HistoryList { get => historyList; set => historyList = value; }
