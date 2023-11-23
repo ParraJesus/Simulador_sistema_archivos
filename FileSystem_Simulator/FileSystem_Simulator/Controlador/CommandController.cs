@@ -158,7 +158,7 @@ namespace FileSystem_Simulator.Controllador
             if (userController.verifyPassword(newUser, enteredPassword))
             {
                 user = newUser;
-                terminal.Prompt = $"{user.Name}@linux:-$ ";
+                terminal.UserPrompt = $"{user.Name}@linux:-$ ";
                 return $"Switched to user {usernameToSwitch}.";
             }
             else

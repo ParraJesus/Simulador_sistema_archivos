@@ -15,7 +15,7 @@ namespace FileSystem_Simulator
 
         CommandController command;
 
-        private string prompt;
+        private string userPrompt;
         
 
         public Terminal(UserController userController)
@@ -25,8 +25,8 @@ namespace FileSystem_Simulator
             user = userController.Users.First();
             command = new CommandController(user, userController, this);
 
-            prompt = $"{user.Name}@linux:-$ ";
-            rtbTerminal.AppendText(prompt);
+            userPrompt = $"{user.Name}@linux:-$ ";
+            rtbTerminal.AppendText(userPrompt);
 
             this.userController = userController;
         }
@@ -41,7 +41,7 @@ namespace FileSystem_Simulator
 
         private void rtbTerminal_KeyDown(object sender, KeyEventArgs e)
         {
-            int promptLength = prompt.Length;
+            int promptLength = userPrompt.Length;
 
             if (e.KeyCode == Keys.Enter)
             {
@@ -49,7 +49,7 @@ namespace FileSystem_Simulator
 
                 promptLength = rtbTerminal.Text.Length;
 
-                rtbTerminal.AppendText(Environment.NewLine + prompt);
+                rtbTerminal.AppendText(Environment.NewLine + userPrompt);
                 e.SuppressKeyPress = true;
                 
                 return;
@@ -61,7 +61,7 @@ namespace FileSystem_Simulator
                 int currentLineIndex = rtbTerminal.GetLineFromCharIndex(currentPosition);
                 int currentLineStart = rtbTerminal.GetFirstCharIndexFromLine(currentLineIndex);
 
-                if (currentPosition > currentLineStart && currentPosition <= (currentLineStart + prompt.Length))
+                if (currentPosition > currentLineStart && currentPosition <= (currentLineStart + userPrompt.Length))
                 {
                     e.SuppressKeyPress = true;
                     return;
@@ -99,7 +99,7 @@ namespace FileSystem_Simulator
 
 
         #region GettersSetters
-        public string Prompt { get => prompt; set => prompt = value; }
+        public string UserPrompt { get => userPrompt; set => userPrompt = value; }
 
         public RichTextBox GetRichTextBox()
         {
