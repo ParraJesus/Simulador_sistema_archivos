@@ -23,10 +23,14 @@ namespace FileSystem_Simulator.Modelo
             homeDirectory = new Directory(name, null);
         }
 
+        #region GetterSetters
         public string Name { get => name; set => name = value; }
+
         public string Password { get => password; set => password = value; }
+
         public string Group { get => group; set => group = value; }
 
         public Directory HomeDirectory { get => homeDirectory; set => homeDirectory = value; }
+        #endregion
     }
 }

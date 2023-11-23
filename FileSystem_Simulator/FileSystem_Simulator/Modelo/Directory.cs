@@ -36,7 +36,7 @@ namespace FileSystem_Simulator.Modelo
         {
             string result;
 
-            result = ($"{indent}Carpeta: {name}");
+            result = ($"{indent}Folder: {name}");
 
             foreach (var element in elements)
             {
@@ -49,7 +49,7 @@ namespace FileSystem_Simulator.Modelo
         public string DisplayContents(Directory directory)
         {
             string result;
-            result = ($"Contenido de la carpeta '{directory.getName()}':");
+            result = ($"Folder content: '{directory.getName()}':");
 
             foreach (var element in directory.elements)
             {
@@ -59,7 +59,7 @@ namespace FileSystem_Simulator.Modelo
                 }
                 else if (element is Directory)
                 {
-                    result += ($"  Carpeta: {((Directory)element).getName()}");
+                    result += ($"  Folder: {((Directory)element).getName()}");
                 }
             }
 
@@ -70,7 +70,6 @@ namespace FileSystem_Simulator.Modelo
         {
             get
             {
-                // Devolver la ruta completa de este directorio
                 if (parentDirectory != null)
                 {
                     return $"{parentDirectory.FullName}/{name}";
@@ -96,6 +95,7 @@ namespace FileSystem_Simulator.Modelo
                 }
             }
         }
+
         public File findFileByName(string fileName)
         {
             return findFileInDirectory(this, fileName);
@@ -111,7 +111,6 @@ namespace FileSystem_Simulator.Modelo
                 }
                 else if (element is Directory subdirectory)
                 {
-                    // Recursivamente buscar en subdirectorios
                     File foundFile = findFileInDirectory(subdirectory, fileName);
                     if (foundFile != null)
                     {
@@ -120,7 +119,7 @@ namespace FileSystem_Simulator.Modelo
                 }
             }
 
-            return null;  // No se encontró el archivo en este directorio o sus subdirectorios
+            return null;
         }
 
         public void clearElements()

@@ -88,15 +88,12 @@ namespace FileSystem_Simulator
         private void execute(int promptLength) 
         {
             string commandText = rtbTerminal.Lines.Last().Substring(promptLength);
-            Debug.WriteLine("terminal: " + rtbTerminal.Lines.Last().Substring(promptLength));
             
             string result = command.executeCommand(commandText);
 
             rtbTerminal.AppendText("\n" + result);
 
         }
-
-
 
         #region GettersSetters
         public string UserPrompt { get => userPrompt; set => userPrompt = value; }

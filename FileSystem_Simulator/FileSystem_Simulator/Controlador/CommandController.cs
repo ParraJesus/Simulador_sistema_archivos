@@ -106,7 +106,6 @@ namespace FileSystem_Simulator.Controllador
             Array.Copy(parts, 1, arrAux, 0, arrAux.Length);
 
             string result = string.Join(" ", arrAux);
-            Debug.WriteLine(result);
 
             return result;
         }
@@ -128,7 +127,6 @@ namespace FileSystem_Simulator.Controllador
             {
                 return "Invalid 'history' command. Usage: history ";
             }
-            Debug.WriteLine(string.Join("\n", historyList));
 
             return string.Join("\n", historyList);
         }
@@ -137,7 +135,7 @@ namespace FileSystem_Simulator.Controllador
         {
             if (parts.Length == 1) 
             {
-                currentDirectory = user.HomeDirectory;
+                currentDirectory = userController.RootDirectory;
             }
             if (parts.Length == 2)
             {
@@ -192,7 +190,6 @@ namespace FileSystem_Simulator.Controllador
                 }
             }
 
-            // Crear el nuevo directorio y asignar la ruta completa
             Directory newDirectory = new Directory(directoryName, currentDirectory);
             currentDirectory.AddElement(newDirectory);
 
@@ -278,17 +275,14 @@ namespace FileSystem_Simulator.Controllador
 
             string fileName = parts[1];
 
-            // Buscar el archivo por nombre en el directorio actual
             File targetFile = currentDirectory.findFileByName(fileName);
 
             if (targetFile != null)
             {
-                // Mostrar el contenido del archivo
                 return targetFile.Text;
             }
             else
             {
-                // Crear un nuevo archivo si no existe
                 if (fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 {
                     File newFile = new File(fileName);
@@ -312,18 +306,15 @@ namespace FileSystem_Simulator.Controllador
             string oldName = parts[1];
             string newName = parts[2];
 
-            // Buscar el elemento por nombre en el directorio actual
             IFileSystemElement targetElement = findElementByName(oldName, currentDirectory);
 
             if (targetElement != null)
             {
-                // Verificar si el nuevo nombre termina en ".txt" para los archivos
                 if (targetElement is File && !newName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 {
                     return "Error: Invalid file extension. The new file name must end with '.txt'.";
                 }
 
-                // Cambiar el nombre del elemento
                 targetElement.setName(newName);
 
                 return $"{targetElement.GetType().Name} '{oldName}' renamed to '{newName}'.";
@@ -337,25 +328,6 @@ namespace FileSystem_Simulator.Controllador
         private IFileSystemElement findElementByName(string elementName, Directory directory)
         {
             return findElementInDirectory(elementName, directory);
-            /*
-            foreach (var element in directory.elements)
-            {
-                if (element.getName().Equals(elementName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return element;
-                }
-                else if (element is Directory subdirectory)
-                {
-                    IFileSystemElement foundElement = FindElementByName(elementName, subdirectory);
-                    if (foundElement != null)
-                    {
-                        return foundElement;
-                    }
-                }
-            }
-
-            return null;  
-            */
         }
 
         private IFileSystemElement findElementInDirectory(string elementName, Directory directory)
@@ -380,12 +352,10 @@ namespace FileSystem_Simulator.Controllador
 
             string elementName = parts[1];
 
-            // Buscar el elemento por nombre en el directorio actual
             IFileSystemElement targetElement = findElementByName(elementName, currentDirectory);
 
             if (targetElement != null)
             {
-                // Eliminar el elemento del directorio actual
                 currentDirectory.RemoveElement(targetElement);
 
                 return $"{targetElement.GetType().Name} '{elementName}' removed.";
@@ -403,7 +373,6 @@ namespace FileSystem_Simulator.Controllador
                 return "Invalid 'format' command. Usage: format";
             }
 
-            // Eliminar todos los elementos del directorio actual
             currentDirectory.clearElements();
 
             return "File system formatted successfully.";

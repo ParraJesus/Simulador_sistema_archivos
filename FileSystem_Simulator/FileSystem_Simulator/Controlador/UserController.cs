@@ -9,17 +9,25 @@ namespace FileSystem_Simulator.Controllador
     {
         private List<User> users = new List<User>();
 
-        public UserController() { }
+        private Directory rootDirectory;
+
+        public UserController() 
+        {
+            rootDirectory = new Directory("root", null);
+        }
 
         public void regUser(string userName, string userPass)
         {
-            // Lógica para registrar un nuevo usuario
-            users.Add(new User(userName, userPass));
+            User newUser = new User(userName, userPass);
+            users.Add(newUser);
+
+            Directory userDirectory = new Directory(userName, rootDirectory);
+            rootDirectory.AddElement(userDirectory);
+            newUser.HomeDirectory = userDirectory;
         }
 
         public bool login(string userName, string userPass)
         {
-            // Lógica para verificar las credenciales y permitir el inicio de sesión
             User user = users.FirstOrDefault(u => u.Name == userName && u.Password == userPass);
             return user != null;
         }
@@ -45,7 +53,8 @@ namespace FileSystem_Simulator.Controllador
         }
 
         #region GetterSetters
-        public List<User> Users { get => users; set => users = value; } 
+        public List<User> Users { get => users; set => users = value; }
+        public Directory RootDirectory { get => rootDirectory; set => rootDirectory = value; }
         #endregion
     }
 }
