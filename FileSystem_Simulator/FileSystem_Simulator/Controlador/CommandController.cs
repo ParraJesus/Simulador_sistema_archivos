@@ -282,18 +282,38 @@ namespace FileSystem_Simulator.Controllador
 
         private string executeLs(string[] parts)
         {
-            if (parts.Length != 1)
+            if (parts.Length < 1 || parts.Length > 2)
             {
-                return "Invalid 'ls' command. Usage: ls";
+                return "Invalid 'ls' command. Usage: ls or ls -l";
             }
 
             StringBuilder result = new StringBuilder();
 
-            foreach (var element in currentDirectory.elements)
+            if (parts.Length == 1)
             {
-                if (element is IFileSystemElement fileSystemElement)
+                foreach (var element in currentDirectory.elements)
                 {
-                    result.AppendLine(fileSystemElement.getName());
+                    if (element is IFileSystemElement fileSystemElement)
+                    {
+                        result.AppendLine(fileSystemElement.getName());
+                    }
+                }
+            }
+            else if (parts.Length == 2 && parts[1] == "-l")
+            {
+                foreach (var element in currentDirectory.elements)
+                {
+                    if (element is IFileSystemElement fileSystemElement)
+                    {
+                        if (fileSystemElement.GetType() == typeof(Directory))
+                        {
+                            result.AppendLine($"d{string.Join(" ", element.Permissions)}  {fileSystemElement.Creator.Name}   {fileSystemElement.Creator.Group} {fileSystemElement.getName()}");
+                        }
+                        else 
+                        {
+                            result.AppendLine($"-{string.Join(" ", element.Permissions)}  {fileSystemElement.Creator.Name}   {fileSystemElement.Creator.Group} {fileSystemElement.getName()}");
+                        }
+                    }
                 }
             }
 
