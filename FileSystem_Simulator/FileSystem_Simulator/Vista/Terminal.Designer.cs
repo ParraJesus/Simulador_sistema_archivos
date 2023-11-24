@@ -60,7 +60,6 @@
             this.rtbTerminal.SelectionChanged += new System.EventHandler(this.rtbTerminal_SelectionChanged);
             this.rtbTerminal.KeyDown += new System.Windows.Forms.KeyEventHandler(this.rtbTerminal_KeyDown);
             this.rtbTerminal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtbTerminal_KeyPress);
-            this.rtbTerminal.KeyUp += new System.Windows.Forms.KeyEventHandler(this.rtbTerminal_KeyUp);
             // 
             // Terminal
             // 

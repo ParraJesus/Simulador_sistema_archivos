@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace FileSystem_Simulator.Controlador
 {
     public class TerminalController
     {
+        #region Attributes
         private Terminal terminal;
-        private RichTextBox richTextBox;
-        public TerminalController(Terminal terminal) 
+        private RichTextBox richTextBox; 
+        #endregion
+
+        #region Constructor
+        public TerminalController(Terminal terminal)
         {
             this.terminal = terminal;
 
             richTextBox = terminal.GetRichTextBox();
         }
+        #endregion
 
-        public void clearRtc() 
+        #region Functions
+        public void clearRtc()
         {
             richTextBox.Clear();
-        }
+        } 
+        #endregion
 
         #region GetterSetters
         public Terminal Terminal { get => terminal; set => terminal = value; } 

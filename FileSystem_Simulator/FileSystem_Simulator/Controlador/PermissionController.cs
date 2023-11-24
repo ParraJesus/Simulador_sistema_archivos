@@ -11,6 +11,7 @@ namespace FileSystem_Simulator.Controlador
 {
     public class PermissionController
     {
+        #region Functions
         public bool HasReadPermission(IFileSystemElement element, User currentUser)
         {
             if (element.Creator.Name.Equals(currentUser.Name))
@@ -18,8 +19,8 @@ namespace FileSystem_Simulator.Controlador
                 return (element.Permissions[0] & 4) >= 4;
             }
             else if (element.Creator.Group.Equals(currentUser.Group))
-            {                
-                return (element.Permissions[1] & 4) >= 4; 
+            {
+                return (element.Permissions[1] & 4) >= 4;
             }
             else
             {
@@ -67,10 +68,10 @@ namespace FileSystem_Simulator.Controlador
             {
                 return;
             }
-                
+
             if (AreValidPermissions(permissions))
             {
-                    element.Permissions = permissions;
+                element.Permissions = permissions;
             }
         }
 
@@ -85,6 +86,7 @@ namespace FileSystem_Simulator.Controlador
             }
 
             return true;
-        }
+        } 
+        #endregion
     }
 }

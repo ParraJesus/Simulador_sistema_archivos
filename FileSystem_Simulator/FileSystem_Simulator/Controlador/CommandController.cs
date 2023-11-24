@@ -9,6 +9,7 @@ namespace FileSystem_Simulator.Controllador
 {
     internal class CommandController
     {
+        #region Attributes
         private List<string> historyList = new List<string>();
 
         private User user;
@@ -17,7 +18,9 @@ namespace FileSystem_Simulator.Controllador
         private TerminalController terminalController;
         private Directory currentDirectory;
         private PermissionController permissionController = new PermissionController();
+        #endregion
 
+        #region Constructor
         public CommandController(User user, UserController userController, Terminal terminal)
         {
             this.user = user;
@@ -26,10 +29,12 @@ namespace FileSystem_Simulator.Controllador
 
             terminalController = new TerminalController(terminal);
 
-            currentDirectory = user.HomeDirectory;  
+            currentDirectory = user.HomeDirectory;
             updatePrompt();
         }
+        #endregion
 
+        #region Commands
         public string executeCommand(string command)
         {
             if (command == null) return "";
@@ -55,7 +60,7 @@ namespace FileSystem_Simulator.Controllador
                 case "ls":
                     return executeLs(commandParts);
 
-                case "cd":                   
+                case "cd":
                     return executeCd(commandParts);
 
                 case "cat":
@@ -173,9 +178,9 @@ namespace FileSystem_Simulator.Controllador
             return string.Join("\n", historyList);
         }
 
-        private string executeCd(string[] parts) 
+        private string executeCd(string[] parts)
         {
-            if (parts.Length == 1) 
+            if (parts.Length == 1)
             {
                 currentDirectory = userController.RootDirectory;
             }
@@ -200,19 +205,6 @@ namespace FileSystem_Simulator.Controllador
             updatePrompt();
 
             return "";
-        }
-
-        private Directory findDirectoryByName(string directoryName, Directory parentDirectory)
-        {
-            foreach (var element in parentDirectory.elements)
-            {
-                if (element is Directory directory && directory.getName().Equals(directoryName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return directory;
-                }
-            }
-
-            return null;
         }
 
         private string executeMkdir(string[] parts)
@@ -268,7 +260,7 @@ namespace FileSystem_Simulator.Controllador
                 user = newUser;
                 updatePrompt();
 
-                string[] auxParts = new string[] {"cd"};
+                string[] auxParts = new string[] { "cd" };
 
                 executeCd(auxParts);
 
@@ -309,7 +301,7 @@ namespace FileSystem_Simulator.Controllador
                         {
                             result.AppendLine($"d{string.Join(" ", element.Permissions)}  {fileSystemElement.Creator.Name}   {fileSystemElement.Creator.Group} {fileSystemElement.getName()}");
                         }
-                        else 
+                        else
                         {
                             result.AppendLine($"-{string.Join(" ", element.Permissions)}  {fileSystemElement.Creator.Name}   {fileSystemElement.Creator.Group} {fileSystemElement.getName()}");
                         }
@@ -318,11 +310,6 @@ namespace FileSystem_Simulator.Controllador
             }
 
             return result.ToString();
-        }
-
-        private void updatePrompt()
-        {
-            terminal.UserPrompt = $"{user.Name}@linux:{currentDirectory.FullName} -$ ";
         }
 
         private string executePwd(string[] parts)
@@ -348,7 +335,7 @@ namespace FileSystem_Simulator.Controllador
             }
 
             string fileName = parts[1];
-            
+
             File targetFile = currentDirectory.findFileByName(fileName);
 
             if (targetFile != null && permissionController.HasReadPermission(currentDirectory, user))
@@ -405,24 +392,6 @@ namespace FileSystem_Simulator.Controllador
             }
         }
 
-        private IFileSystemElement findElementByName(string elementName, Directory directory)
-        {
-            return findElementInDirectory(elementName, directory);
-        }
-
-        private IFileSystemElement findElementInDirectory(string elementName, Directory directory)
-        {
-            foreach (var element in directory.elements)
-            {
-                if (element.getName().Equals(elementName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return element;
-                }
-            }
-
-            return null;
-        }
-
         private string executeRm(string[] parts)
         {
             if (!permissionController.HasWritePermission(currentDirectory, user))
@@ -468,7 +437,7 @@ namespace FileSystem_Simulator.Controllador
             return "File system formatted successfully.";
         }
 
-        private string executeHelp() 
+        private string executeHelp()
         {
             string result;
 
@@ -476,7 +445,7 @@ namespace FileSystem_Simulator.Controllador
                      "  echo. Usage: echo <body> \n" +
                      "  mkdir. Usage: mkdir <directory_name> \n" +
                      "  pwd. Usage: pwd \n" +
-                     "  ls. Usage: ls \n" +
+                     "  ls. Usage: ls or ls -l \n" +
                      "  cd. Usage: cd <directory_name> \n" +
                      "  cat. cat <filename.txt> \n" +
                      "  mv. Usage: mv <old_name> <new_name> \n" +
@@ -488,7 +457,46 @@ namespace FileSystem_Simulator.Controllador
                      "  su.  Usage: su <surname> <password> \n";
 
             return result;
+        } 
+        #endregion
+
+        #region helpfunctions
+        private void updatePrompt()
+        {
+            terminal.UserPrompt = $"{user.Name}@linux:{currentDirectory.FullName} -$ ";
         }
+
+        private Directory findDirectoryByName(string directoryName, Directory parentDirectory)
+        {
+            foreach (var element in parentDirectory.elements)
+            {
+                if (element is Directory directory && directory.getName().Equals(directoryName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return directory;
+                }
+            }
+
+            return null;
+        }
+
+        private IFileSystemElement findElementByName(string elementName, Directory directory)
+        {
+            return findElementInDirectory(elementName, directory);
+        }
+
+        private IFileSystemElement findElementInDirectory(string elementName, Directory directory)
+        {
+            foreach (var element in directory.elements)
+            {
+                if (element.getName().Equals(elementName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return element;
+                }
+            }
+
+            return null;
+        } 
+        #endregion
 
         #region GetterSetters
         public List<string> HistoryList { get => historyList; set => historyList = value; }

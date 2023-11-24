@@ -1,7 +1,6 @@
 ﻿using FileSystem_Simulator.Controllador;
 using FileSystem_Simulator.Modelo;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -9,15 +8,14 @@ namespace FileSystem_Simulator
 {
     public partial class Terminal : Form
     {
-
+        #region Attributes
         private UserController userController;
         private User user;
+        private CommandController command;
+        private string userPrompt; 
+        #endregion
 
-        CommandController command;
-
-        private string userPrompt;
-        
-
+        #region Constructor
         public Terminal(UserController userController)
         {
             InitializeComponent();
@@ -30,7 +28,9 @@ namespace FileSystem_Simulator
 
             this.userController = userController;
         }
+        #endregion
 
+        #region Methods
         private void rtbTerminal_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (rtbTerminal.GetLineFromCharIndex(rtbTerminal.SelectionStart) < rtbTerminal.Text.LastIndexOf(Environment.NewLine))
@@ -51,7 +51,7 @@ namespace FileSystem_Simulator
 
                 rtbTerminal.AppendText(Environment.NewLine + userPrompt);
                 e.SuppressKeyPress = true;
-                
+
                 return;
             }
             if (e.KeyCode == Keys.Back)
@@ -74,26 +74,22 @@ namespace FileSystem_Simulator
             }
         }
 
-        private void rtbTerminal_KeyUp(object sender, KeyEventArgs e)
-        {
-            
-        }
-
         private void rtbTerminal_SelectionChanged(object sender, EventArgs e)
         {
             rtbTerminal.SelectionStart = rtbTerminal.Text.Length;
             rtbTerminal.SelectionLength = 0;
         }
 
-        private void execute(int promptLength) 
+        private void execute(int promptLength)
         {
             string commandText = rtbTerminal.Lines.Last().Substring(promptLength);
-            
+
             string result = command.executeCommand(commandText);
 
             rtbTerminal.AppendText("\n" + result);
 
-        }
+        } 
+        #endregion
 
         #region GettersSetters
         public string UserPrompt { get => userPrompt; set => userPrompt = value; }

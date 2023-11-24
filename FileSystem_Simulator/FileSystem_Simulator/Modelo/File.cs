@@ -1,31 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileSystem_Simulator.Modelo
+﻿namespace FileSystem_Simulator.Modelo
 {
     public class File : IFileSystemElement
     {
+        #region Attributes
         private string name;
         private string text;
         private User creator;
+        public int[] Permissions { get; set; } = { 6, 4, 4 }; 
+        #endregion
 
-        public int[] Permissions { get; set; } = { 6,4,4};
-
+        #region Constructor
         public File(string name, User userCreator)
         {
             this.name = name;
             this.text = "This is the content inside the file " + name;
             creator = userCreator;
         }
+        #endregion
 
+        #region Functions
         public string display(string indent)
         {
             return ($"{indent}Archivo: {name}");
-        }
+        } 
+        #endregion
 
+        #region GetterSetters
         public string getName()
         {
             return name;
@@ -44,7 +44,7 @@ namespace FileSystem_Simulator.Modelo
         public User Creator
         {
             get { return creator; }
-        }
-
+        } 
+        #endregion
     }
 }

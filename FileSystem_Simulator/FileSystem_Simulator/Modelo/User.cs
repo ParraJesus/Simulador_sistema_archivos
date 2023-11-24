@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FileSystem_Simulator.Modelo
+﻿namespace FileSystem_Simulator.Modelo
 {
     public class User
     {
+        #region Attributes
         private string name;
         private string password;
         private string group;
+        private Directory homeDirectory; 
+        #endregion
 
-        private Directory homeDirectory;
-
-        public User(string name, string password) 
+        #region Constructor
+        public User(string name, string password)
         {
             this.name = name;
             this.password = password;
             group = name;
 
             homeDirectory = new Directory(name, null, this);
-        }
+        } 
+        #endregion
 
         #region GetterSetters
         public string Name { get => name; set => name = value; }

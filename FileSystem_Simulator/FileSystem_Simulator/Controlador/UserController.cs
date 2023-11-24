@@ -7,15 +7,19 @@ namespace FileSystem_Simulator.Controllador
 {
     public class UserController
     {
+        #region Attributes
         private List<User> users = new List<User>();
+        private Directory rootDirectory; 
+        #endregion
 
-        private Directory rootDirectory;
-
-        public UserController() 
+        #region Constructor
+        public UserController()
         {
             rootDirectory = new Directory("HOME", null, null);
         }
+        #endregion
 
+        #region Functions
         public void regUser(string userName, string userPass)
         {
             User newUser = new User(userName, userPass);
@@ -32,7 +36,7 @@ namespace FileSystem_Simulator.Controllador
             return user != null;
         }
 
-        public User getUserByName(string userName) 
+        public User getUserByName(string userName)
         {
             User foundUser = users.Find(user => user.Name == userName);
 
@@ -50,7 +54,8 @@ namespace FileSystem_Simulator.Controllador
         public bool verifyPassword(User user, string enteredPassword)
         {
             return user.Password == enteredPassword;
-        }
+        } 
+        #endregion
 
         #region GetterSetters
         public List<User> Users { get => users; set => users = value; }

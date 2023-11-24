@@ -20,8 +20,6 @@ namespace FileSystem_Simulator
             userController.regUser("jesus", "123");
             userController.regUser("elkin", "123");
 
-            Directory sharedRootDirectory = new Directory("root", null, userController.getUserByName("root"));
-
             Application.Run(new Terminal(userController));
         }
     }
