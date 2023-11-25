@@ -407,7 +407,7 @@ namespace FileSystem_Simulator.Controllador
         {
             if (!permissionController.HasWritePermission(currentDirectory, user))
             {
-                return "Error: Permission denied. You don't have the required permissions.";
+                return "Error: Permission denied. You don't have the required permissions to remove in this directory.";
             }
 
             if (parts.Length != 2)
@@ -418,6 +418,11 @@ namespace FileSystem_Simulator.Controllador
             string elementName = parts[1];
 
             IFileSystemElement targetElement = findElementByName(elementName, currentDirectory);
+
+            if (!permissionController.HasWritePermission(targetElement, user))
+            {
+                return "Error: Permission denied. You don't have the required permissions to remove that directory.";
+            }
 
             if (targetElement != null)
             {
