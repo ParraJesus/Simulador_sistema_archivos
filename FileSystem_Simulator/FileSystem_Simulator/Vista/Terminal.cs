@@ -1,6 +1,7 @@
 ﻿using FileSystem_Simulator.Controllador;
 using FileSystem_Simulator.Modelo;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -9,10 +10,11 @@ namespace FileSystem_Simulator
     public partial class Terminal : Form
     {
         #region Attributes
-        private UserController userController;
         private User user;
         private CommandController command;
-        private string userPrompt; 
+        private string userPrompt;
+
+        private Color currentSelectionColor = Color.White;
         #endregion
 
         #region Constructor
@@ -24,9 +26,9 @@ namespace FileSystem_Simulator
             command = new CommandController(user, userController, this);
 
             userPrompt = $"{user.Name}@linux:-$ ";
-            rtbTerminal.AppendText(userPrompt);
 
-            this.userController = userController;
+            appendTextWithColor(userPrompt);
+            //rtbTerminal.AppendText(userPrompt);
         }
         #endregion
 
@@ -49,7 +51,8 @@ namespace FileSystem_Simulator
 
                 promptLength = rtbTerminal.Text.Length;
 
-                rtbTerminal.AppendText(Environment.NewLine + userPrompt);
+                appendTextWithColor(Environment.NewLine + userPrompt);
+                //rtbTerminal.AppendText(Environment.NewLine + userPrompt);
                 e.SuppressKeyPress = true;
 
                 return;
@@ -86,9 +89,16 @@ namespace FileSystem_Simulator
 
             string result = command.executeCommand(commandText);
 
-            rtbTerminal.AppendText("\n" + result);
+            appendTextWithColor("\n" + result);
+            //rtbTerminal.AppendText("\n" + result);
 
-        } 
+        }
+
+        private void appendTextWithColor(string text)
+        {
+            rtbTerminal.SelectionColor = currentSelectionColor;
+            rtbTerminal.AppendText(text);
+        }
         #endregion
 
         #region GettersSetters
@@ -98,6 +108,8 @@ namespace FileSystem_Simulator
         {
             return rtbTerminal;
         }
+
+        public Color CurrentSelectionColor { get => currentSelectionColor; set => currentSelectionColor = value; }
         #endregion
     }
 }

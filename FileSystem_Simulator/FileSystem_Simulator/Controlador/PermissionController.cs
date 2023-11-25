@@ -32,6 +32,8 @@ namespace FileSystem_Simulator.Controlador
         {
             Debug.WriteLine(element.getName(), currentUser.Name);
 
+            if (element.getName().Equals("HOME")) return false;
+
             if (element.Creator.Name.Equals(currentUser.Name))
             {
                 return (element.Permissions[0] == 2 || element.Permissions[0] == 3 || element.Permissions[0] == 6 || element.Permissions[0] == 7);

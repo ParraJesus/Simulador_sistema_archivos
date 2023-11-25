@@ -3,6 +3,7 @@ using FileSystem_Simulator.Modelo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 
 namespace FileSystem_Simulator.Controllador
@@ -18,6 +19,9 @@ namespace FileSystem_Simulator.Controllador
         private TerminalController terminalController;
         private Directory currentDirectory;
         private PermissionController permissionController = new PermissionController();
+
+        private Color currentSelectionColor = Color.White;
+        private Color currentBackgroundColor;
         #endregion
 
         #region Constructor
@@ -45,6 +49,8 @@ namespace FileSystem_Simulator.Controllador
             string cadenaFechaYHora = fechaYHoraActual.ToString("yyyy-MM-dd HH:mm:ss");
 
             historyList.Add($"{command}: executed at {cadenaFechaYHora}");
+
+
 
             switch (mainCommand)
             {
@@ -86,8 +92,13 @@ namespace FileSystem_Simulator.Controllador
 
                 case "su":
                     return executeSu(commandParts);
+
                 case "help":
                     return executeHelp();
+
+                case "color":
+                    return executeColor(commandParts);
+
                 default:
                     return "Invalid command";
             }
@@ -437,6 +448,57 @@ namespace FileSystem_Simulator.Controllador
             return "File system formatted successfully.";
         }
 
+        private string executeColor(string[] parts) 
+        {
+            if (parts.Length != 2)
+            {
+                return "Invalid 'color' command. Usage: color <attr>";
+            }
+
+            string colorCodes = parts[1];
+
+            if (colorCodes.Length >= 1 && colorCodes.Length <= 2)
+            {
+                char textColorCode = colorCodes[0];
+                char bgColorCode = colorCodes.Length == 2 ? colorCodes[1] : '\0';
+
+                if ((textColorCode >= '0' && textColorCode <= 'f') &&
+                (bgColorCode == '\0' || (bgColorCode >= '0' && bgColorCode <= 'f')))
+                {
+                    if (textColorCode.Equals(bgColorCode)) return "";
+
+                    terminalController.changeColor(textColorCode, bgColorCode);
+                    terminal.CurrentSelectionColor = terminalController.TextColor;
+
+                    return $"Text color changed to {textColorCode}, background color changed to {bgColorCode}.";
+                }
+                else
+                {
+                    return "Invalid color codes. Please use valid color codes (0-9, A-F). \n" +
+                       "    0 = Black \n" +
+                       "    1 = Blue \n" +
+                       "    2 = Green \n" +
+                       "    3 = Cyan \n" +
+                       "    4 = Red \n" +
+                       "    5 = Purple \n" +
+                       "    6 = Yellow \n" +
+                       "    7 = Peru \n" +
+                       "    8 = LightGray \n" +
+                       "    9 = LightBlue \n" +
+                       "    a = LightGreen \n" +
+                       "    b = LightCyan \n" +
+                       "    c = LightCoral \n" +
+                       "    d = LightPink \n" +
+                       "    e = LightYellow \n" +
+                       "    f = White \n";
+                }
+            }
+            else
+            {
+                return "Invalid color codes. Please use two valid color codes (0-9, A-F). \n";
+            }
+        }
+
         private string executeHelp()
         {
             string result;
@@ -454,7 +516,8 @@ namespace FileSystem_Simulator.Controllador
                      "  format.  Usage: format \n" +
                      "  cls.  Usage: cls \n" +
                      "  history.  Usage: history \n" +
-                     "  su.  Usage: su <surname> <password> \n";
+                     "  su.  Usage: su <surname> <password> \n" +
+                     "  color. Usage: color <attr> \n";
 
             return result;
         } 
@@ -463,6 +526,7 @@ namespace FileSystem_Simulator.Controllador
         #region helpfunctions
         private void updatePrompt()
         {
+            terminal.GetRichTextBox().SelectionColor = currentSelectionColor;
             terminal.UserPrompt = $"{user.Name}@linux:{currentDirectory.FullName} -$ ";
         }
 

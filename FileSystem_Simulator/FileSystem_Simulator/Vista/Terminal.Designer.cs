@@ -46,7 +46,7 @@
             // 
             // rtbTerminal
             // 
-            this.rtbTerminal.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(5)))), ((int)(((byte)(5)))), ((int)(((byte)(11)))));
+            this.rtbTerminal.BackColor = System.Drawing.Color.Black;
             this.rtbTerminal.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.rtbTerminal.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtbTerminal.Font = new System.Drawing.Font("Courier New", 13.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
