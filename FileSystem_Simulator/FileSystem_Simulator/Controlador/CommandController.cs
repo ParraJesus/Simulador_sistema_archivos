@@ -117,12 +117,10 @@ namespace FileSystem_Simulator.Controllador
 
             if (permissionsStr.Length == 3 && int.TryParse(permissionsStr, out int permissions))
             {
-                // Divide el número de permisos en tres dígitos individuales.
                 int ownerPermission = permissions / 100;
                 int groupPermission = (permissions / 10) % 10;
                 int otherPermission = permissions % 10;
 
-                // Luego, crea un array de enteros con estos valores.
                 int[] permissionArray = { ownerPermission, groupPermission, otherPermission };
 
                 IFileSystemElement targetElement = findElementByName(elementName, currentDirectory);
@@ -198,7 +196,9 @@ namespace FileSystem_Simulator.Controllador
             if (parts.Length == 2)
             {
                 string targetDirectoryName = parts[1];
+
                 Directory targetDirectory = findDirectoryByName(targetDirectoryName, currentDirectory);
+
                 if (targetDirectory != null)
                 {
                     currentDirectory = targetDirectory;
@@ -546,6 +546,41 @@ namespace FileSystem_Simulator.Controllador
             }
 
             return null;
+        }
+
+        private Directory findDirectoryByFullName(string fullPath)
+        {
+            string[] pathComponents = fullPath.Split('/');
+
+            Directory currentDirectory = userController.RootDirectory;
+
+            foreach (string directoryName in pathComponents)
+            {
+                if (string.IsNullOrWhiteSpace(directoryName))
+                {
+                    continue;
+                }
+
+                Directory foundDirectory = null;
+
+                foreach (var element in currentDirectory.elements)
+                {
+                    if (element is Directory directory && directory.getName().Equals(directoryName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        foundDirectory = directory;
+                        break;
+                    }
+                }
+
+                if (foundDirectory == null)
+                {
+                    return null;
+                }
+
+                currentDirectory = foundDirectory;
+            }
+
+            return currentDirectory;
         }
 
         private IFileSystemElement findElementByName(string elementName, Directory directory)
